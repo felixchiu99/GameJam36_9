@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Ai/AiUsable/NpcPatrolPoint.h"
+#include "NpcPatrolPoint.h"
 
 // Sets default values
 ANpcPatrolPoint::ANpcPatrolPoint()

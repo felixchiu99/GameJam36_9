@@ -14,6 +14,33 @@ class THELASTPRESENT_API ALastPresentGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 	
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
+	bool IsInMenu = false;
+	bool IsOverlay = false;
+	bool HasGameStarted = true;
 	bool HasGameEnded = false;
+	
+	double timeStart;
+	double timeEnd;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void StartTimer();
+
+	UFUNCTION(BlueprintPure)
+	float GetMillisecondElapsed();
+
+	UFUNCTION(BlueprintCallable)
+	void EndTimer();
+
+	UFUNCTION(BlueprintCallable)
+	void GameStart();
+
+	UFUNCTION(BlueprintCallable)
+	void GoalReached();
+
 };

@@ -12,6 +12,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 class UBoxComponent;
+class USphereComponent;
 class UCC_Willpower;
 struct FInputActionValue;
 
@@ -28,6 +29,10 @@ class THELASTPRESENT_API APresentPawn : public APawn
 	/** HitBox **/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* CollisionBox;
+
+	/** NPC query HitBox **/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* NpcQueryArea;
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -53,9 +58,25 @@ class THELASTPRESENT_API APresentPawn : public APawn
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ClickAction;
 
+	/** Lure Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LureAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* Suggest1Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* Suggest2Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* Suggest3Action;
+
 	/** Look Pressed Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookPressedAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> NpcCharacterClass;
 
 	/** UpdateTimer for character **/
 	FTimerHandle UpdateTimer;
@@ -70,6 +91,9 @@ class THELASTPRESENT_API APresentPawn : public APawn
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
 	float WillpowerMove = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	float MovePower = 50000.0f;
 
 private:
 	bool bLookToogle = true;
@@ -95,12 +119,14 @@ protected:
 
 	void ResetJumpState();
 
+	void LureNpc();
+
 protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Called when the game starts or when spawned
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 
 	// Add Timed Update
 	virtual void OnTimerUpdate();
@@ -116,4 +142,7 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	//pause player
+	void OnGameEnd();
 };

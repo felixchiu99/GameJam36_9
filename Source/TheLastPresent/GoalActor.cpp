@@ -4,6 +4,7 @@
 #include "GoalActor.h"
 #include "Components/SphereComponent.h"
 #include "PresentPawn.h"
+#include "LastPresentGameState.h"
 
 // Sets default values
 AGoalActor::AGoalActor()
@@ -37,6 +38,11 @@ void AGoalActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 {
 	if (OtherActor->IsA(APresentPawn::StaticClass())) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("ShouldEnd"));
+		ALastPresentGameState* const GameState = GetWorld() != NULL ? GetWorld()->GetGameState<ALastPresentGameState>() : NULL;
+		if (GameState == NULL) {
+			return;
+		}
+		GameState->EndTimer();
 	}
 }
 
