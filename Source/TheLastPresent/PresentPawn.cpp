@@ -23,11 +23,12 @@ APresentPawn::APresentPawn()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-	RootComponent = CollisionBox;
-
 	PresentMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PresentMesh"));
 	PresentMesh->SetupAttachment(RootComponent);
+
+	RootComponent = PresentMesh;
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -69,7 +70,7 @@ void APresentPawn::Jump()
 		return;
 	}
 
-	PresentMesh->AddImpulse(  FVector(0, 0, 1) * 10000 );
+	PresentMesh->AddImpulse(  FVector(0, 0, 1) * 50000 );
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("jump"));
 	//bPressedJump = true;
 	//JumpKeyHoldTime = 0.0f;
@@ -103,7 +104,8 @@ void APresentPawn::Move()
 			return;
 		}
 
-		PresentMesh->AddImpulse( ( impactPoint - this->GetActorLocation()).GetSafeNormal() * 100000 + FVector(0,0,2));
+		//PresentMesh->AddImpulse( ( impactPoint - this->GetActorLocation()).GetSafeNormal() + FVector(0, 0, 0.5) * 100000);
+		PresentMesh->AddImpulseAtLocation((impactPoint - this->GetActorLocation()).GetSafeNormal() * 100000 + FVector(0, 0, 0.5f), GetActorLocation() + FVector(0, 0, 0.6f));
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clicked"));
