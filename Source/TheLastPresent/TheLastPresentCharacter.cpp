@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+//Custom scripts
+#include "CommonComponent/CC_Willpower.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +54,11 @@ ATheLastPresentCharacter::ATheLastPresentCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	// Create Willpower component
+	Willpower = CreateDefaultSubobject<UCC_Willpower>(TEXT("Willpower"));
+
+
 }
 
 void ATheLastPresentCharacter::BeginPlay()
@@ -67,6 +74,23 @@ void ATheLastPresentCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	GetWorld()->GetTimerManager().SetTimer(UpdateTimer, this, &ATheLastPresentCharacter::OnTimerUpdate, 0.1f, true);
+}
+
+void ATheLastPresentCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// It's important to keep the call chain on EndPlay or you may end up with serious bugs or crashes
+	Super::EndPlay(EndPlayReason);
+
+	// There's a chance your timer is still running when our Actor is destroyed
+	// So we need to make sure we clear the timer on EndPlay just in case.
+	// This is safe to call even if the timer handle's already been cleared.
+	GetWorld()->GetTimerManager().ClearTimer(UpdateTimer);
+}
+
+void ATheLastPresentCharacter::OnTimerUpdate()
+{
+	Willpower->OnUpdate();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,9 +134,27 @@ void ATheLastPresentCharacter::Move(const FInputActionValue& Value)
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
+		bool canMove = true;
+		int willpowerUsed = WillpowerMove;
+		if (MovementVector.Y > 0.01 && MovementVector.Y < -0.01) {
+			return;
+		}
+
+		if (MovementVector.X > 0.01 && MovementVector.X < -0.01) {
+			return;
+		}
+
+		canMove &= Willpower->UseWillpower(willpowerUsed);
+
+		if (!canMove) {
+			return;
+		}
+
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+
+		
 	}
 }
 
@@ -128,3 +170,19 @@ void ATheLastPresentCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+void ATheLastPresentCharacter::Jump()
+{
+	bool canMove = true;
+	int willpowerUsed = WillpowerJump;
+
+	canMove &= Willpower->UseWillpower(willpowerUsed);
+
+	if (!canMove) {
+		return;
+	}
+
+	Super::Jump();
+}
+
+

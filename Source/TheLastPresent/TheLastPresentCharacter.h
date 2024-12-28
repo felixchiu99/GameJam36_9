@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UCC_Willpower;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -44,6 +45,20 @@ class ATheLastPresentCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** UpdateTimer for character **/
+	FTimerHandle UpdateTimer;
+
+	/** Willpower for player action **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	UCC_Willpower* Willpower;
+
+	/** Action Willpower variables **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	float WillpowerJump = 20.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	float WillpowerMove = 5.0f;
+
 public:
 	ATheLastPresentCharacter();
 	
@@ -56,6 +71,8 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
+	/** Called for jump input */
+	void Jump() override;
 
 protected:
 	// APawn interface
@@ -63,6 +80,12 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+
+	// Add Timed Update
+	virtual void OnTimerUpdate();
+
+	// Remove Timer
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	/** Returns CameraBoom subobject **/
