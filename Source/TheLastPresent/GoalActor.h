@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "GoalActor.generated.h"
 
+class USphereComponent;
+
 UCLASS()
 class THELASTPRESENT_API AGoalActor : public AActor
 {
@@ -15,6 +17,14 @@ public:
 	// Sets default values for this actor's properties
 	AGoalActor();
 
+	/** HitBox **/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+	USphereComponent* CollisionBox;
+
+	// FinishMesh
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* Mesh;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -23,4 +33,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

@@ -4,6 +4,7 @@
 #include "PresentPawn.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
@@ -11,6 +12,7 @@
 #include "InputActionValue.h"
 //Custom scripts
 #include "CommonComponent/CC_Willpower.h"
+#include "Ai/NpcCharacter.h"
 
 // Sets default values
 APresentPawn::APresentPawn()
@@ -23,11 +25,16 @@ APresentPawn::APresentPawn()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-	RootComponent = CollisionBox;
-
 	PresentMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PresentMesh"));
 	PresentMesh->SetupAttachment(RootComponent);
+
+	RootComponent = PresentMesh;
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetupAttachment(RootComponent);
+
+	NpcQueryArea = CreateDefaultSubobject<USphereComponent>(TEXT("NpcRange"));
+	NpcQueryArea->SetupAttachment(RootComponent);
 	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -69,7 +76,7 @@ void APresentPawn::Jump()
 		return;
 	}
 
-	PresentMesh->AddImpulse(  FVector(0, 0, 1) * 10000 );
+	PresentMesh->AddImpulse( FVector(0, 0, 1) * MovePower * 0.5f);
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("jump"));
 	//bPressedJump = true;
 	//JumpKeyHoldTime = 0.0f;
@@ -103,15 +110,16 @@ void APresentPawn::Move()
 			return;
 		}
 
-		PresentMesh->AddImpulse( ( impactPoint - this->GetActorLocation()).GetSafeNormal() * 100000 + FVector(0,0,2));
+		//PresentMesh->AddImpulse( ( impactPoint - this->GetActorLocation()).GetSafeNormal() + FVector(0, 0, 0.5) * 100000);
+		PresentMesh->AddImpulseAtLocation((impactPoint - this->GetActorLocation()).GetSafeNormal() * MovePower + FVector(0, 0, 0.3f), GetActorLocation() + FVector(0, 0, 0.6f));
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clicked"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clicked"));
 }
 
 void APresentPawn::LookPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("lookPressed"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("lookPressed"));
 	if (bLookToogle)
 		return;
 	bLookToogle = true;
@@ -127,7 +135,7 @@ void APresentPawn::LookPressed()
 
 void APresentPawn::LookPressedEnded()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("lookPressedEnded"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("lookPressedEnded"));
 	bLookToogle = false;
 	APlayerController* PC = Cast<APlayerController>(GetController());
 
@@ -155,6 +163,25 @@ void APresentPawn::ResetJumpState()
 	*/
 }
 
+void APresentPawn::LureNpc()
+{
+	TSet<AActor*> NpcInRange;
+	NpcQueryArea->GetOverlappingActors(NpcInRange, TSubclassOf<ANpcCharacter>());
+	if (NpcInRange.Num() > 1) {
+		for (AActor* Actor : NpcInRange)
+		{
+			if (Actor == this) {
+				continue;
+			}
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Lured ") + Actor->GetName());
+			ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
+			if (!NpcCharacter)
+				continue;
+			NpcCharacter->SetPresent(this);
+		}
+	}
+}
+
 // Called to bind functionality to input
 void APresentPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -174,6 +201,9 @@ void APresentPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		// Clicking
 		EnhancedInputComponent->BindAction(ClickAction, ETriggerEvent::Triggered, this, &APresentPawn::Move);
+
+		// Lure
+		EnhancedInputComponent->BindAction(LureAction, ETriggerEvent::Triggered, this, &APresentPawn::LureNpc);
 	}
 	else
 	{
@@ -196,6 +226,8 @@ void APresentPawn::BeginPlay()
 		}
 	}
 	GetWorld()->GetTimerManager().SetTimer(UpdateTimer, this, &APresentPawn::OnTimerUpdate, 0.1f, true);
+
+	LookPressedEnded();
 }
 
 void APresentPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -219,4 +251,17 @@ void APresentPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void APresentPawn::OnGameEnd()
+{
+	GetWorld()->GetTimerManager().ClearTimer(UpdateTimer);
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			FModifyContextOptions ContextOption;
+			Subsystem->RemoveMappingContext(DefaultMappingContext, ContextOption);
+		}
+	}
 }
