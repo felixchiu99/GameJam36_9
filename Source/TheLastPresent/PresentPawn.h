@@ -71,6 +71,9 @@ class THELASTPRESENT_API APresentPawn : public APawn
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* Suggest3Action;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* DropAction;
+
 	/** Look Pressed Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookPressedAction;
@@ -84,16 +87,21 @@ class THELASTPRESENT_API APresentPawn : public APawn
 
 	/** Action Willpower variables **/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	float WillpowerJump = 20.0f;
+	float WillpowerJump = 40.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	float WillpowerMove = 5.0f;
+	float WillpowerMove = 30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
+	float WillpowerMind = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
 	float MovePower = 50000.0f;
 
 private:
 	bool bLookToogle = true;
+
+	ANpcCharacter* HeldNpc;
 
 public:
 	// Sets default values for this pawn's properties
@@ -117,6 +125,16 @@ protected:
 	void ResetJumpState();
 
 	void LureNpc();
+
+	void Tempt1();
+
+	void Tempt2();
+
+	void Tempt3();
+
+	void TemptGeneral(enum ENpcPreference);
+
+	void DropNpc();
 
 protected:
 	// Called to bind functionality to input

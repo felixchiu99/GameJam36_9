@@ -171,6 +171,15 @@ void APresentPawn::LureNpc()
 	TSet<AActor*> NpcInRange;
 	NpcQueryArea->GetOverlappingActors(NpcInRange, TSubclassOf<ANpcCharacter>());
 	if (NpcInRange.Num() > 1) {
+		bool canMove = true;
+		int willpowerUsed = WillpowerMind;
+		canMove &= Willpower->UseWillpower(willpowerUsed);
+
+		if (!canMove) {
+			return;
+		}
+
+
 		for (AActor* Actor : NpcInRange)
 		{
 			if (Actor == this) {
@@ -182,6 +191,22 @@ void APresentPawn::LureNpc()
 			NpcCharacter->SetPresent(this);
 		}
 	}
+}
+
+void APresentPawn::Tempt1()
+{
+}
+
+void APresentPawn::Tempt2()
+{
+}
+
+void APresentPawn::Tempt3()
+{
+}
+
+void APresentPawn::DropNpc()
+{
 }
 
 // Called to bind functionality to input
@@ -206,6 +231,15 @@ void APresentPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		// Lure
 		EnhancedInputComponent->BindAction(LureAction, ETriggerEvent::Triggered, this, &APresentPawn::LureNpc);
+
+		// Tempt
+		EnhancedInputComponent->BindAction(Suggest1Action, ETriggerEvent::Triggered, this, &APresentPawn::Tempt1);
+		EnhancedInputComponent->BindAction(Suggest2Action, ETriggerEvent::Triggered, this, &APresentPawn::Tempt2);
+		EnhancedInputComponent->BindAction(Suggest3Action, ETriggerEvent::Triggered, this, &APresentPawn::Tempt3);
+
+
+		// Drop
+		EnhancedInputComponent->BindAction(DropAction, ETriggerEvent::Triggered, this, &APresentPawn::DropNpc);
 	}
 	else
 	{
