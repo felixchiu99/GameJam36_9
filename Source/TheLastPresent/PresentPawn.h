@@ -14,6 +14,7 @@ class UInputAction;
 class UBoxComponent;
 class USphereComponent;
 class UCC_Willpower;
+//class ANpcCharacter;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -101,7 +102,7 @@ class THELASTPRESENT_API APresentPawn : public APawn
 private:
 	bool bLookToogle = true;
 
-	ANpcCharacter* HeldNpc;
+	//ANpcCharacter* HeldNpc;
 
 public:
 	// Sets default values for this pawn's properties
