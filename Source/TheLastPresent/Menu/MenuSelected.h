@@ -15,4 +15,6 @@ enum class EMenuSelected : uint8
 	PauseMenu			UMETA(DisplayName = "PauseMenu"),
 	SettingMenu			UMETA(DisplayName = "SettingMenu"),
 	LeaderboardMenu		UMETA(DisplayName = "LeaderboardMenu"),
+	Hud					UMETA(DisplayName = "Hud"),
+	HelpMenu			UMETA(DisplayName = "HelpMenu"),
 };
