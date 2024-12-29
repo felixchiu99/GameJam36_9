@@ -77,7 +77,7 @@ void APresentPawn::Jump()
 	}
 
 	PresentMesh->AddImpulse( FVector(0, 0, 1) * MovePower * 0.5f);
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("jump"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("jump"));
 	//bPressedJump = true;
 	//JumpKeyHoldTime = 0.0f;
 }
@@ -112,6 +112,9 @@ void APresentPawn::Move()
 
 		//PresentMesh->AddImpulse( ( impactPoint - this->GetActorLocation()).GetSafeNormal() + FVector(0, 0, 0.5) * 100000);
 		PresentMesh->AddImpulseAtLocation((impactPoint - this->GetActorLocation()).GetSafeNormal() * MovePower + FVector(0, 0, 0.3f), GetActorLocation() + FVector(0, 0, 0.6f));
+	}
+	else {
+		PresentMesh->AddImpulseAtLocation(this->GetActorLocation() + MouseWorldDirection * MovePower + FVector(0, 0, 0.1f), GetActorLocation() + FVector(0, 0, 0.6f));
 	}
 
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clicked"));
@@ -173,7 +176,6 @@ void APresentPawn::LureNpc()
 			if (Actor == this) {
 				continue;
 			}
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Lured ") + Actor->GetName());
 			ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
 			if (!NpcCharacter)
 				continue;
