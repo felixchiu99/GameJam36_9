@@ -14,7 +14,7 @@ class UInputAction;
 class UBoxComponent;
 class USphereComponent;
 class UCC_Willpower;
-//class ANpcCharacter;
+class ANpcCharacter;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -102,11 +102,14 @@ class THELASTPRESENT_API APresentPawn : public APawn
 private:
 	bool bLookToogle = true;
 
-	//ANpcCharacter* HeldNpc;
+	ANpcCharacter* HeldNpc;
 
 public:
 	// Sets default values for this pawn's properties
 	APresentPawn();
+
+private:
+	void OnPickedUp(ANpcCharacter* NpcCharacter);
 
 protected:
 	/** Called for looking input */
@@ -133,7 +136,7 @@ protected:
 
 	void Tempt3();
 
-	void TemptGeneral(enum ENpcPreference);
+	void TemptGeneral(uint8 NpcPreference);
 
 	void DropNpc();
 
@@ -161,4 +164,7 @@ public:
 
 	//pause player
 	void OnGameEnd();
+
+	//Return Present is Picked up
+	bool IsPickedUp();
 };

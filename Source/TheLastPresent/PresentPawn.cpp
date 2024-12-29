@@ -13,6 +13,7 @@
 //Custom scripts
 #include "CommonComponent/CC_Willpower.h"
 #include "Ai/NpcCharacter.h"
+#include "Ai/AiUsable/NpcPreference.h"
 
 // Sets default values
 APresentPawn::APresentPawn()
@@ -49,6 +50,12 @@ APresentPawn::APresentPawn()
 
 	// Create Willpower component
 	Willpower = CreateDefaultSubobject<UCC_Willpower>(TEXT("Willpower"));
+}
+
+void APresentPawn::OnPickedUp(ANpcCharacter* NpcCharacter)
+{
+	HeldNpc = NpcCharacter;
+
 }
 
 void APresentPawn::Look(const FInputActionValue& Value)
@@ -178,35 +185,77 @@ void APresentPawn::LureNpc()
 		if (!canMove) {
 			return;
 		}
-
-
-		for (AActor* Actor : NpcInRange)
-		{
-			if (Actor == this) {
-				continue;
-			}
-			ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
-			if (!NpcCharacter)
-				continue;
-			NpcCharacter->SetPresent(this);
+	}
+	else {
+		return;
+	}
+	for (AActor* Actor : NpcInRange)
+	{
+		if (Actor == this) {
+			continue;
 		}
+		ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
+		if (!NpcCharacter)
+			continue;
+		NpcCharacter->SetPresent(this);
 	}
 }
 
 void APresentPawn::Tempt1()
 {
+	TemptGeneral((uint8)ENpcPreference::Money);
 }
 
 void APresentPawn::Tempt2()
 {
+	TemptGeneral((uint8)ENpcPreference::Usefulness);
 }
 
 void APresentPawn::Tempt3()
 {
+	TemptGeneral((uint8)ENpcPreference::Looks);
+}
+
+void APresentPawn::TemptGeneral(uint8 NpcPreference)
+{
+	TSet<AActor*> NpcInRange;
+	NpcQueryArea->GetOverlappingActors(NpcInRange, TSubclassOf<ANpcCharacter>());
+	if (NpcInRange.Num() > 1) {
+		bool canMove = true;
+		int willpowerUsed = WillpowerMind;
+		canMove &= Willpower->UseWillpower(willpowerUsed);
+
+		if (!canMove) {
+			return;
+		}
+	}
+	else {
+		return;
+	}
+	for (AActor* Actor : NpcInRange)
+	{
+		if (Actor == this) {
+			continue;
+		}
+		ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
+		if (!NpcCharacter)
+			continue;
+		bool PickupSuccess = NpcCharacter->PickupPresent(this);
+		if (PickupSuccess) {
+			OnPickedUp(NpcCharacter);
+		}
+
+	}
 }
 
 void APresentPawn::DropNpc()
 {
+	if (HeldNpc == nullptr) {
+		return;
+	}
+	HeldNpc->DropPresent();
+	HeldNpc = nullptr;
+
 }
 
 // Called to bind functionality to input
@@ -300,4 +349,9 @@ void APresentPawn::OnGameEnd()
 			Subsystem->RemoveMappingContext(DefaultMappingContext, ContextOption);
 		}
 	}
+}
+
+bool APresentPawn::IsPickedUp()
+{
+	return HeldNpc != nullptr;
 }
