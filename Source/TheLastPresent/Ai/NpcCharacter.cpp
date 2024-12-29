@@ -2,6 +2,8 @@
 
 
 #include "NpcCharacter.h"
+#include "AIController.h"
+#include "../PresentPawn.h"
 
 // Sets default values
 ANpcCharacter::ANpcCharacter()
@@ -30,5 +32,14 @@ void ANpcCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ANpcCharacter::SetPresent_Implementation(APresentPawn* present)
+{
+	AAIController* aiController = Cast<AAIController>(this->GetController());
+	if (aiController) {
+		//UBlackboardComponent* blackboard = aiController->GetBlackboardComponent();
+		//blackboard->SetValueAsVector(FName("PointOfInterest"), present->GetLocation());
+	}
 }
 

@@ -42,7 +42,7 @@ void AGoalActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 		if (GameState == NULL) {
 			return;
 		}
-		GameState->EndTimer();
+		GameState->GoalReached();
 	}
 }
 

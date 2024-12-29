@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "NpcCharacter.generated.h"
 
+
+class APresentPawn;
+
 UCLASS()
 class THELASTPRESENT_API ANpcCharacter : public ACharacter
 {
@@ -26,4 +29,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Set present
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetPresent(APresentPawn* present);
+
+	void SetPresent_Implementation(APresentPawn* present);
 };

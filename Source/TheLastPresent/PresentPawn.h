@@ -75,9 +75,6 @@ class THELASTPRESENT_API APresentPawn : public APawn
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookPressedAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AActor> NpcCharacterClass;
-
 	/** UpdateTimer for character **/
 	FTimerHandle UpdateTimer;
 

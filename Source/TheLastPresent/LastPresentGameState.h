@@ -18,6 +18,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+protected:
+	EEnumInGameLevelState GameLevelState;
 public:
 	bool IsInMenu = false;
 	bool IsOverlay = false;
@@ -40,7 +42,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GameStart();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void GoalReached();
 
+	UFUNCTION(BlueprintCallable)
+	void GamePause();
+
+	UFUNCTION(BlueprintCallable)
+	void GameResume();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsInState(EEnumInGameLevelState GameState);
+
+	void SetPlayerControllerPause(bool isPause);
 };

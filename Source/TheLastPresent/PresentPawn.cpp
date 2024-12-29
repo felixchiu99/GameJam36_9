@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 //Custom scripts
 #include "CommonComponent/CC_Willpower.h"
+#include "Ai/NpcCharacter.h"
 
 // Sets default values
 APresentPawn::APresentPawn()
@@ -165,11 +166,19 @@ void APresentPawn::ResetJumpState()
 void APresentPawn::LureNpc()
 {
 	TSet<AActor*> NpcInRange;
-	NpcQueryArea->GetOverlappingActors(NpcInRange, NpcCharacterClass);
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Lure"));
-
+	NpcQueryArea->GetOverlappingActors(NpcInRange, TSubclassOf<ANpcCharacter>());
 	if (NpcInRange.Num() > 1) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Lure") + FString::SanitizeFloat(NpcInRange.Num()));
+		for (AActor* Actor : NpcInRange)
+		{
+			if (Actor == this) {
+				continue;
+			}
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Lured ") + Actor->GetName());
+			ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
+			if (!NpcCharacter)
+				continue;
+			NpcCharacter->SetPresent(this);
+		}
 	}
 }
 
