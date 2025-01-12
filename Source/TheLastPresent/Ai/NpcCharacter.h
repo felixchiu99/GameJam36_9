@@ -15,6 +15,7 @@ class THELASTPRESENT_API ANpcCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
 	ENpcPreference Preference;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
@@ -48,9 +49,9 @@ public:
 
 	// Pickup present
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	bool PickupPresent(APresentPawn* present);
+	bool PickupPresent(APresentPawn* present, uint8 NpcPreference);
 
-	bool PickupPresent_Implementation(APresentPawn* present);
+	bool PickupPresent_Implementation(APresentPawn* present, uint8 NpcPreference);
 
 	// Drop present
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
@@ -61,5 +62,9 @@ public:
 	// Check preference
 	UFUNCTION(BlueprintCallable)
 	bool CheckPreference(uint8 checkPreference);
+
+	// Check if Holding
+	UFUNCTION(BlueprintCallable)
+	bool CheckHolding();
 
 };

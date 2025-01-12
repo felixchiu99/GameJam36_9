@@ -36,6 +36,9 @@ APresentPawn::APresentPawn()
 
 	NpcQueryArea = CreateDefaultSubobject<USphereComponent>(TEXT("NpcRange"));
 	NpcQueryArea->SetupAttachment(RootComponent);
+
+	NpcPickupArea = CreateDefaultSubobject<USphereComponent>(TEXT("NpcPickupRange"));
+	NpcPickupArea->SetupAttachment(RootComponent);
 	
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -55,7 +58,7 @@ APresentPawn::APresentPawn()
 void APresentPawn::OnPickedUp(ANpcCharacter* NpcCharacter)
 {
 	HeldNpc = NpcCharacter;
-
+	PresentMesh->SetSimulatePhysics(false);
 }
 
 void APresentPawn::Look(const FInputActionValue& Value)
@@ -129,7 +132,6 @@ void APresentPawn::Move()
 
 void APresentPawn::LookPressed()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("lookPressed"));
 	if (bLookToogle)
 		return;
 	bLookToogle = true;
@@ -145,7 +147,6 @@ void APresentPawn::LookPressed()
 
 void APresentPawn::LookPressedEnded()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("lookPressedEnded"));
 	bLookToogle = false;
 	APlayerController* PC = Cast<APlayerController>(GetController());
 
@@ -219,17 +220,16 @@ void APresentPawn::Tempt3()
 void APresentPawn::TemptGeneral(uint8 NpcPreference)
 {
 	TSet<AActor*> NpcInRange;
-	NpcQueryArea->GetOverlappingActors(NpcInRange, TSubclassOf<ANpcCharacter>());
+	NpcPickupArea->GetOverlappingActors(NpcInRange, TSubclassOf<ANpcCharacter>());
 	if (NpcInRange.Num() > 1) {
-		bool canMove = true;
+		bool canPick = true;
 		int willpowerUsed = WillpowerMind;
-		canMove &= Willpower->UseWillpower(willpowerUsed);
+		canPick &= Willpower->UseWillpower(willpowerUsed);
 
-		if (!canMove) {
+		if (!canPick) {
 			return;
 		}
-	}
-	else {
+	}else {
 		return;
 	}
 	for (AActor* Actor : NpcInRange)
@@ -240,7 +240,7 @@ void APresentPawn::TemptGeneral(uint8 NpcPreference)
 		ANpcCharacter* NpcCharacter = Cast<ANpcCharacter>(Actor);
 		if (!NpcCharacter)
 			continue;
-		bool PickupSuccess = NpcCharacter->PickupPresent(this);
+		bool PickupSuccess = NpcCharacter->PickupPresent(this, NpcPreference);
 		if (PickupSuccess) {
 			OnPickedUp(NpcCharacter);
 		}
@@ -254,6 +254,7 @@ void APresentPawn::DropNpc()
 		return;
 	}
 	HeldNpc->DropPresent();
+	PresentMesh->SetSimulatePhysics(true);
 	HeldNpc = nullptr;
 
 }

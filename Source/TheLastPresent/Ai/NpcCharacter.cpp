@@ -30,8 +30,8 @@ void ANpcCharacter::BeginPlay()
 void ANpcCharacter::InitPreference()
 {
 	int rand = FMath::RandRange(0, 2);
-	//Preference = static_cast<ENpcPreference>(rand+1);
-	Preference = ENpcPreference::Money;
+	Preference = static_cast<ENpcPreference>(rand+1);
+	//Preference = ENpcPreference::Money;
 
 }
 
@@ -67,9 +67,9 @@ void ANpcCharacter::SetPresent_Implementation(APresentPawn* present)
 	}
 }
 
-bool ANpcCharacter::PickupPresent_Implementation(APresentPawn* present)
+bool ANpcCharacter::PickupPresent_Implementation(APresentPawn* present, uint8 NpcPreference)
 {
-	bool canPickUp = !present->IsPickedUp();
+	bool canPickUp = !present->IsPickedUp() && CheckPreference(NpcPreference);
 	if (canPickUp) {
 		HeldPresent = present;
 	}
@@ -85,6 +85,12 @@ bool ANpcCharacter::DropPresent_Implementation()
 bool ANpcCharacter::CheckPreference(uint8 checkPreference)
 {
 	bool isSame = checkPreference == (uint8)Preference;
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow,  FString.sanitiseFloat(checkPreference));
 	return isSame;
+}
+
+bool ANpcCharacter::CheckHolding()
+{
+	return HeldPresent != nullptr;
 }
 
